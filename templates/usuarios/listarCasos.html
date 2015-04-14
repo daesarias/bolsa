@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block link %}
+<link href="{% static 'assets/js/dataTables/dataTables.bootstrap.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+
+            <div id="page-inner">
+                <div class="row">
+                    <div class="col-md-12">
+                     <h2>CASOS</h2>   
+                        <h5>{{ user.username }}, dé click sobre uno de los registros para ver información más detallada sobre el respectivo caso. </h5>
+                    </div>
+                </div>
+ <!-- /. ROW  -->
+            <hr />
+               
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Advanced Tables -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                             Personas
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre del caso</th>
+                                            <th>Fecha de registro</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for caso in casos %}
+                                            <tr class="odd gradeX">
+                                                <td id="{% url 'Caso' caso.id %}" class="center">{{ caso.nombre }}</td>
+                                                <td class="center">{{ caso.fecha_registro }}</td>
+  
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <!--End Advanced Tables -->
+                </div>
+            </div>
+                <!-- /. ROW  -->
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'assets/js/dataTables/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'assets/js/dataTables/dataTables.bootstrap.js' %}"></script>
+
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            $('#dataTables-example').dataTable();
+
+            $('#dataTables-example tbody').on('click', 'tr', function (ev) {
+                var target = $(ev.target);
+                if(target.not('.borrar').length){
+                    var name = $('td', this).eq(0).text();
+                    var dir = $('td', this).eq(0).attr('id');
+
+                    console.log(name);
+                    console.log(dir);
+                    window.location.replace(dir)
+                }
+
+                //alert( 'You clicked on '+name+'\'s row' )
+            });
+
+        });
+    </script>
+{% endblock %}

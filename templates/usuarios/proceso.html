@@ -1,0 +1,304 @@
+<!--CAMPO DE PROCESO1-->
+
+{% if procesos %}
+
+{% for proceso in procesos %}
+<div id="ProcesoReal_{{proceso.id}}">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <!-- Form Elements -->
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            
+
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group has-error">
+                                                       <b>Proceso {{forloop.counter}}</b>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 Ed">
+                                                    <div class="navbar-right">
+                                                        <button id="{{proceso.id}}" class="btn btn-primary procesoEditar"><i class="fa fa-edit"></i></button>
+                                                        <button id="{{proceso.id}}" class="btn btn-danger procesoEliminar"><i class="fa fa-trash-o fa-fw"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+
+                                                    <!--<h3>Perfil</h3>-->
+                                                    <div class="form-group ">
+                                                        <h3>TIPO: </h3>
+                                                        <h4>{{proceso.tipo}}</h4>
+                                                    </div>
+                                                    <div class="form-group ">
+                                                        <h3>JUZGADO: </h3>
+                                                        <h4>{{proceso.juzgado}}</h4>
+                                                    </div>
+                                                    <div class="form-group text-danger">
+                                                        <h3>Fecha de Vencimiento: </h3>
+                                                        <h4>{{proceso.fecha_vencimiento}}</h4>
+                                                    </div>
+                                                    <div class="form-group ">
+                                                        <h3>Descripción: </h3>
+                                                        <h4>{{proceso.descripcion}}</h4>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <!--<h3>Perfil</h3>-->
+                                                   <!-- IMPORTANT enctype attribute! -->
+                                                   <div class="form-group">
+                                                        <form id="formA{{proceso.id}}" class="dropzone" action="{% url 'subirArchivos' %}" method="post" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        </form>
+
+                                                        <script>
+                                                            Dropzone.autoDiscover = false;
+                                                            var myDropzone= new Dropzone("#formA{{proceso.id}}");
+
+                                                              Dropzone.options.myDropzone = {
+                                                                maxFilesize: 500,
+                                                              }
+
+                                                            $('#TablaArchivos{{proceso.id}}').load("{% url 'listarArchivos' proceso.id %}");
+                                                            
+                                                            myDropzone.on("success", function(file,data) {
+                                                                console.log(data.message);//este es
+                                                                if(data.message=="1"){
+                                                                    $('#TablaArchivos{{proceso.id}}').load("{% url 'listarArchivos' proceso.id %}");
+                                                                }
+                                                            });
+
+                                                            myDropzone.on("sending", function(file, xhr, formData) {
+                                                              formData.append("tama", file.size);
+
+                                                              formData.append("tama", file.size);
+                                                              formData.append("nombre", file.name);
+                                                              formData.append("proceso", {{proceso.id}});
+                                                            });
+                                                           
+
+                                                           
+
+                                                        </script>
+                                                   </div>
+                                                   </br>
+
+
+
+
+                                <!-- Advanced Tables -->
+                                <div id="TablaArchivos{{proceso.id}}">
+                                                    
+                                </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+
+<div id="editar_proceso{{proceso.id}}" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>Editar Proceso {{forloop.counter}}</b></h4>
+      </div>
+
+        <div class="modal-body">
+            <label>Tipo: </label>
+            <input id="Tipo{{proceso.id}}" value="{{proceso.tipo}}" name="tipo" class="form-control iproceso requeridoE{{proceso.id}}" placeholder="Ingresa el tipo de trámite " required/>
+        </div>
+        <div class="modal-body">
+            <label>JUZGADO: </label>
+            <select  id="Juzgado{{proceso.id}}" class="form-control requeridoE{{proceso.id}}">
+              <option value="{{proceso.juzgado.id}}">{{proceso.juzgado}}</option>
+              {% for juz in juzgados %}
+                <option value="{{juz.id}}"> {{juz.nombre}} </option>
+              {% endfor %}
+            </select>
+        </div>
+        <div class="modal-body">
+            <label>Fecha de Vencimiento: </label>
+            <input id="Fv{{proceso.id}}" value="{{proceso.fecha_vencimiento| date:'Y-m-d'}}" class="datepicker form-control iproceso requeridoE{{proceso.id}}" type="text" data-provide="datepicker" placeholder="Selecciona la fecha de nacimiento">
+        </div>
+        <div class="modal-body">
+            <label>Descripción</label>
+            <textarea id="Descripcion{{proceso.id}}"  class="form-control iproceso requeridoE{{proceso.id}}"  placeholder="Ingresa una descripción breve de éste proceso">{{proceso.descripcion}}</textarea>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" id="{{proceso.id}}" class="btn btn-primary GuardarProceso">Guardar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $('#Fv{{proceso.id}}').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'es'
+    });
+</script>
+
+
+
+
+</div>
+{% endfor %}
+
+
+
+
+<div id="eliminar_proceso" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-danger"><b>Espera!</b></h4>
+      </div>
+          <div class="modal-body">
+            <label>Esta realmente seguro que desea eliminar este proceso?</label>
+            </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnEliminar_proceso">Aceptar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<script>
+    var idProceso="";
+    $(".procesoEliminar").click(function(){
+        idProceso= $(this).attr('id');
+        //alert(idProceso)
+        $('#eliminar_proceso').modal('show');
+    });
+
+    $("#btnEliminar_proceso").click(function(e){
+
+        if( idProceso != "" ){
+            $('#eliminar_proceso').modal('hide');
+            $.ajax({
+                url: "{% url 'EliminarProceso' %}",
+                type: 'POST',
+                async: true,
+
+                data: {proceso: idProceso},
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function (e) {
+                            $('#Casos').load("/caso2/"+resp.idCaso);
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("algo paso");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+        }else{
+            
+        }
+    });
+
+
+
+
+    $(".procesoEditar").click(function(){
+        idProceso= $(this).attr('id');
+        $('#editar_proceso'+idProceso).modal('show');
+    });
+
+    $(".GuardarProceso").click(function(e){//al apretar el boton del modal
+        idProceso= $(this).attr('id');
+        console.log(idProceso);
+        var valido=true;
+        $(".requeridoE"+idProceso).each(function(){
+            if($(this).val()=="" || $(this).val()=='0'){
+                $(this).parent().addClass('has-error');
+                valido=false;
+                console.log("hay vacios");
+            }else{
+                $(this).parent().removeClass('has-error');
+            }
+        });
+
+        if(valido){//si el formulario es válido
+            var tipo = $("#Tipo"+idProceso).val();
+            var idJuzgado = $("#Juzgado"+idProceso).val();
+            var Fv = $("#Fv"+idProceso).val();
+            var descripcion = $("#Descripcion"+idProceso).val();
+
+            $('#editar_proceso'+idProceso).modal('hide');
+            //console.log(tipo+"  "+idJuzgado+"  "+ Fv+"  "+descripcion);
+            $.ajax({
+                url: "{% url 'EditarProceso' %}",
+                type: 'POST',
+                async: true,
+                data: { 
+                        proceso : idProceso, 
+                        tipo : tipo,
+                        descripcion : descripcion,
+                        juzgado : idJuzgado,
+                        fecha_vencimiento : Fv,
+                    },
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $(".iproceso").each(function(){
+                            $(this).val(''); 
+                        });
+                        $("#Juzgado").val('0')
+
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function () {
+                            $('#Casos').load("/caso2/"+resp.idCaso);
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("2");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+            
+        }
+
+    });
+
+</script>
+{% endif %}
+                            <!--CAMPO DE PROCESO2-->

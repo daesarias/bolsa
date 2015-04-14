@@ -1,0 +1,600 @@
+
+
+{% if caso %}
+<h3>CASO</h3>
+
+<div id="Caso{{caso.id}}">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Form Elements -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group has-error">
+                                           <h4> <strong  class="text-info" ><a href="{% url 'Caso' caso.id %}">{{ caso.nombre }}</a></strong></h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <button id="{{caso.id}}" type="button" class="btn btn-success AddProceso">Añadir proceso</button>
+                                        <button id="{{caso.id}}" type="button" class=" btn btn-primary AddTestigo">Añadir testigo</button>
+                                        <div class="navbar-right">
+                                            <button id="{{caso.id}}" class="Ed btn btn-primary casoEditar"><i class="fa fa-edit"></i></button>
+                                            <button id="{{caso.id}}" class="Ed btn btn-danger casoEliminar"><i class="fa fa-trash-o fa-fw"></i></button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                        </div>
+                        {% if caso.persona.all|length >= 1 %}
+                        <div class="col-md-6">
+                            <h3>Clientes involucrados</h3>
+                           
+                            {% for per in caso.persona.all %}
+                                {% if per.cedula != persona.cedula %}
+                                    {% if per.es_cliente %}
+                                       
+                                            <h4>
+                                            <div id="Clie{{per.id}}" class="col-md-6">
+                                            <i class="fa fa-user"></i>&nbsp
+                                            <a id="nomClie{{per.id}}" href="{% url 'verPersona' per.cedula %}">{{per.nombres}}</a>
+                                            </div>
+                                            <div class="Ed col-md-6">
+                                            <a id="{{per.id}}" class="desasignarCaso"><i class="fa fa-times-circle"></i></a>
+                                            </div>
+                                            </h4>
+                                            </br>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                           
+                        </div>
+
+                        {% endif %}
+
+                        {% if caso.testigo.all|length >= 1 %}
+                        <div class="col-md-6">
+                            <h3>Testigos involucrados</h3>
+                           
+                            {% for per in caso.testigo.all %}
+                                {% if per.cedula != persona.cedula %}
+                                            <h4>
+                                            <div id="Tes{{per.id}}" class="col-md-6">
+                                            <i class="fa fa-user"></i>&nbsp
+                                            <a id="nomTes{{per.id}}" href="{% url 'verPersona' per.cedula %}">{{per.nombres}}</a>
+                                            </div>
+                                            <div class="Ed col-md-6">
+                                            <a id="{{per.id}}" class="desasignarCasoT"><i class="fa fa-times-circle"></i></a>
+                                            </div>
+                                            </h4>
+                                            </br>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        
+                        <div id="Proceso{{caso.id}}" class="panel-body">
+                            
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            </br>
+            </br>
+</div>
+{% endif %}
+
+
+<div id="agregar_testigo" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>AÑADIR TESTIGO</b></h4>
+      </div>
+      <div class="modal-body">
+            <label>selecciona la cédula del testigo que desea asignar al caso: </label>
+            <select multiple id="opTestigo" class="form-control">
+              {% for testigo in testigos %}
+                <option value="{{testigo.id}}">{{testigo.cedula}} -  {{testigo.nombres}}</option>
+              {% endfor %}
+            </select>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="GuardarTestigo">Guardar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+<div class="modal fade" id="mensaje_alerta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Espera!!
+            </div>
+            <div class="modal-body">
+                Estás realmente seguro que desea retirar a <span id="nomclie"></span>  de éste caso?
+            </div>
+            <div class="modal-footer">
+                <button id="aceptar" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="DesasignarClie">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mensaje_alertaT" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Espera!!
+            </div>
+            <div class="modal-body">
+                Estás realmente seguro que desea retirar a <span id="nomTes"></span>  entre los testigos de éste caso?
+            </div>
+            <div class="modal-footer">
+                <button id="aceptar" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="DesasignarTes">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div id="editar_caso" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>CASO NUEVO</b></h4>
+      </div>
+          <div class="modal-body">
+            <label>Ingresa el nuevo nombre del caso: </label>
+                <input id="NombreCasoEdit" name="nombre" class="form-control" placeholder="nombre del caso" value="{{caso.nombre}}" required/>
+            </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="GuardarCasoEdit">Guardar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div id="eliminar_caso" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-danger"><b>Espera!</b></h4>
+      </div>
+          <div class="modal-body">
+            <label>Esta realmente seguro que desea eliminar este caso?</label>
+            </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnEliminar_caso">Aceptar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+
+
+<div id="agregar_proceso" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>Proceso Nuevo</b></h4>
+      </div>
+
+        <div class="modal-body">
+            <label>Tipo: </label>
+            <input id="Tipo" name="tipo" class="form-control iproceso requeridoP" placeholder="Ingresa el tipo de trámite " required/>
+        </div>
+        <div class="modal-body">
+            <label>JUZGADO: </label>
+            <select id="Juzgado" class="form-control requeridoP">
+              <option value="0"> Selecciona un juzgado</option>
+              {% for juz in juzgados %}
+                <option value="{{juz.id}}"> {{juz.nombre}} </option>
+              {% endfor %}
+            </select>
+        </div>
+        <div class="modal-body">
+            <label>Fecha de Vencimiento: </label>
+            <input id="Fv" class="datepicker form-control iproceso requeridoP" type="text" data-provide="datepicker"placeholder="Selecciona la fecha de nacimiento">
+        </div>
+        <div class="modal-body">
+            <label>Descripción</label>
+            <textarea id="Descripcion" class="form-control iproceso"  placeholder="Ingresa una descripción breve de éste proceso"></textarea>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="GuardarProceso">Guardar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+
+<script>
+    $('#Proceso{{caso.id}}').load("{% url 'verProcesos' caso.id %}");
+</script>
+<script>
+//--------------------------------  CSRF TOKEN----------------------------
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                // Only send the token to relative URLs i.e. locally.
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+        }
+    });
+
+//---------------------------------------------------------------------------------
+
+
+    $('#Fv').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'es'
+            });
+
+    var idClie="";
+
+    $('.desasignarCaso').click(function(){
+        console.log("entre");
+        idClie=$(this).attr('id');
+       $("#nomclie").html($("#nomClie"+idClie).html()); 
+       $('#mensaje_alerta').modal('show');
+    });
+
+    $("#DesasignarClie").click(function(e){
+
+        if( idClie == "" ){
+            alert("falla");
+        }else{
+            $('#mensaje_alerta').modal('hide');
+            $.ajax({
+                url: "{% url 'desasignarCaso' %}",
+                type: 'POST',
+                async: true,
+
+                data: {caso: {{caso.id}}, persona: idClie},
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function (e) {
+
+                            $('#Casos').load("{% url 'Caso2' caso.id %}");
+
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("algo paso");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+        }
+    });
+
+
+
+
+    $('.desasignarCasoT').click(function(){
+        console.log("entre2");
+        idClie=$(this).attr('id');
+       $("#nomTes").html($("#nomTes"+idClie).html()); 
+       $('#mensaje_alertaT').modal('show');
+    });
+
+    $("#DesasignarTes").click(function(e){
+
+        if( idClie == "" ){
+            alert("falla");
+        }else{
+            $('#mensaje_alertaT').modal('hide');
+            $.ajax({
+                url: "{% url 'desasignarTestigo' %}",
+                type: 'POST',
+                async: true,
+
+                data: {caso: {{caso.id}}, persona: idClie},
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function (e) {
+
+                            $('#Casos').load("{% url 'Caso2' caso.id %}");
+
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("algo paso");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+        }
+    });
+
+
+
+
+    $(".casoEditar").click(function(){ 
+        $('#editar_caso').modal('show');
+    });
+
+    $("#GuardarCasoEdit").click(function(e){
+        var CasoNombre = $("#NombreCasoEdit").val()
+        if( CasoNombre == '' ){
+            $("#NombreCasoEdit").parent().addClass('has-error');
+            $("#NombreCasoEdit").focus();
+        }else{
+            $("#NombreCasoEdit").parent().removeClass('has-error');
+            $("#NombreCasoEdit").val('');
+            $('#editar_caso').modal('hide');
+            $.ajax({
+                url: "{% url 'EditarCaso' %}",
+                type: 'POST',
+                async: true,
+
+                data: {nombre : CasoNombre, idCaso: {{caso.id}} },
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function () {  
+                            $('#opCasTes{{caso.id}}').html(CasoNombre);  
+                            $('#opCas{{caso.id}}').html(CasoNombre);
+                            $('#Casos').load("{% url 'Caso2' caso.id %}");
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("algo paso")
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+            
+        }
+
+    });
+
+    $(".casoEliminar").click(function(){ 
+        $('#eliminar_caso').modal('show');
+    });
+
+
+    $("#btnEliminar_caso").click(function(e){
+        var idCaso={{caso.id}};
+        if( idCaso != "" ){
+            $('#eliminar_caso').modal('hide');
+            $.ajax({
+                url: "{% url 'EliminarCaso' %}",
+                type: 'POST',
+                async: true,
+
+                data: {caso: idCaso},
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function (e) {
+                            window.location.href ="{% url 'listarCasos' %}"
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("algo paso");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+        }else{
+            
+        }
+    });
+
+    $(".AddTestigo").click(function(){
+        $('#agregar_testigo').modal('show');
+    });
+
+
+
+    $("#GuardarTestigo").click(function(e){//al apretar el boton del modal
+        console.log($("#opTestigo").val());
+        if($("#opTestigo").val()==null){
+            $("#opTestigo").parent().addClass('has-error');
+        }else{
+            $("#opTestigo").parent().removeClass('has-error');
+
+            var testigos = $("#opTestigo").val()
+            //alert(testigos);
+            $('#agregar_testigo').modal('hide');
+            $.ajax({
+                url: "{% url 'asignarCasoTestigo' %}",
+                type: 'POST',
+                async: true,
+                data: { caso : {{caso.id}}, 
+                        testigos : testigos,
+                    },
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function () {
+                            
+                            $('#Casos').load("{% url 'Caso2' caso.id %}");
+                            
+                        });
+                    }else{
+                        if(resp.message == '2'){
+                            alert("2");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+        }
+
+
+    });
+
+
+
+
+
+
+
+
+
+
+    $(".AddProceso").click(function(){     
+        $('#agregar_proceso').modal('show');
+    });
+
+    $("#GuardarProceso").click(function(e){//al apretar el boton del modal
+        console.log("entremadafacka");
+        var valido=true;
+        $(".requeridoP").each(function(){
+            if($(this).val()=="" || $(this).val()=='0'){
+                $(this).parent().addClass('has-error');
+                valido=false;
+            }else{
+                $(this).parent().removeClass('has-error');
+            }
+        });
+
+        if(valido){//si el formulario es válido
+            var tipo = $("#Tipo").val();
+            var idJuzgado = $("#Juzgado").val();
+            var Fv = $("#Fv").val();
+            var descripcion = $("#Descripcion").val();
+
+            $('#agregar_proceso').modal('hide');
+            //console.log(tipo+"  "+idJuzgado+"  "+ Fv+"  "+descripcion);
+
+            $.ajax({
+                url: "{% url 'CrearProceso' %}",
+                type: 'POST',
+                async: true,
+                data: { caso : {{caso.id}}, 
+                        tipo : tipo,
+                        descripcion : descripcion,
+                        juzgado : idJuzgado,
+                        fecha_vencimiento : Fv,
+                    },
+                success: function(resp){
+                    if(resp.message == '1'){
+                        $(".iproceso").each(function(){
+                            $(this).val(''); 
+                        });
+                        $("#Juzgado").val('0')
+
+                        $('#mensaje_exito').modal('show').one('click', '#aceptar', function () {
+                            $('#Casos').load("{% url 'Caso2' caso.id %}");
+                        });
+
+                    }else{
+                        if(resp.message == '2'){
+                            alert("2");
+                        }else{
+                            for(var index in resp.message){
+                                $('#error').html(resp.message[index]);
+                            }
+                            $('#mensaje_existe').modal('show');
+                        }
+                    }
+                },
+                error: function(jqXHR,estado,error){
+                    alert("Error: "+error+"     Estado: "+estado);
+                },
+                 
+            });
+        }
+
+    });
+
+</script>
+
